@@ -1,0 +1,39 @@
+{
+  "name": "swallowstore",
+  "version": "0.1.0",
+  "description": "A flexible Cloud Firestore API Wrapper",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --reporter spec"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hurlatunde/swallowstore.git"
+  },
+  "keywords": [
+    "firebase",
+    "firestore",
+    "scalable",
+    "NoSQL",
+    "flexible",
+    "cloud"
+  ],
+  "author": "“Olatunde <“hurlatunde@gmail.com”> (“https://medium.com/@hurlatunde”)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hurlatunde/swallowstore/issues"
+  },
+  "homepage": "https://github.com/hurlatunde/swallowstore#readme",
+  "engines": {
+    "node": ">=4.2.4"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^5.2.0"
+  },
+  "dependencies": {
+    "firebase": "^5.5.5",
+    "firebase-admin": "^6.1.0",
+    "lodash": "^4.17.11"
+  }
+}
