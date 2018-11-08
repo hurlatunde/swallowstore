@@ -5,6 +5,7 @@
  * @type {firebase}
  */
 const firebase = require("firebase");
+const operation = require('operators');
 require("firebase/firestore");
 
 /**
