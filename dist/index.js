@@ -6,72 +6,35 @@
  */
 const firebase = require("firebase");
 require("firebase/firestore");
+
+/**
+ * @type {_|_.LoDashStatic}
+ * @private
+ */
 const _ = require("lodash");
 
-// /**
-//  * Adds commas to a number
-//  * @param {number} number
-//  * @param {string} locale
-//  * @return {string}
-//  */
-// module.exports = function(number, locale) {
-//     return number.toLocaleString(locale);
-// };
-
-
+/**
+ * @class FirestoreDataModel
+ */
 class FirestoreDataModel {
 
-    // static firebaseInitialized(params = null) {
-    //     return params;
-    // }
-    // static firestore(params = null) {
-    //     return params;
-    // };
-    //
-    //
-    //
-    //
-    //
-
-
     constructor(firebaseParams) {
-
         this.config = null;
         this.firestore = 1;
         this.firesbase = firebaseParams;
-
-        console.log('1', this.config);
-        console.log('2',this.config);
-
-
-        // this.firestore =
-
-        // this.firestore = this.initializeApp(firebaseParams);
-        // this.settings = {timestampsInSnapshots: true};
-        // this.firestore.settings(this.settings);
-
-        //this.messages = [];
     }
 
     initialize(config) {
-
-        // check for null/ not set here
-        //this.setter(config);
-        // const config = this.getter();
-        // this.firestore ++;
-        // console.log('firestore', this.firestore);
         this.firestore = this.firesbase.initializeApp(config).firestore();
         const settings = {timestampsInSnapshots: true};
         this.firestore.settings(settings);
-        // console.log('firestore', this.firestore);
-        //return config;
     }
 
     setter(params) {
         this.config = params;
     }
 
-    getter(){
+    getter() {
         return this.config;
     }
 
@@ -136,6 +99,13 @@ class FirestoreDataModel {
         }
     }
 
+    /**
+     * @url https://firebase.google.com/docs/firestore/query-data/queries#compound_queries
+     * @param whereQuery || Compound queries
+     * @return {*}
+     * @desc where() methods to create more specific queries (logical AND). However, to combine the equality operator (==)
+     * with a range or array-contains clause (<, <=, >, >=, or array_contains),
+     */
     whereLoop(whereQuery) {
         let self = this;
         var query = self.collectionInstance;
@@ -151,6 +121,9 @@ class FirestoreDataModel {
             //     return {error: 'The WHERE query needs to be 3 argument, but ' + whereQuery.length + ' was given'};
             // }
 
+            /**
+             * @type {firebase.firestore.field | firebase.firestore.operator | firebase.firestore.value
+             */
             query = query.where(whereStatement[0], whereStatement[1], whereStatement[2]);
             count++;
 
@@ -181,7 +154,7 @@ class FirestoreDataModel {
         }
     }
 
-    firestoreInit(){
+    firestoreInit() {
         // const config = this.getter();
         // this.firestore = this.firesbase.initializeApp(config).firestore();
 
@@ -189,5 +162,51 @@ class FirestoreDataModel {
     }
 }
 
-const swallowStoreInstance = new FirestoreDataModel(firebase);
-module.exports = swallowStoreInstance;
+const swallowInstance = new FirestoreDataModel(firebase);
+module.exports = swallowInstance;
+
+/**
+ * @des Operation for query against the collection
+ * @type {{LessThan: string, LessThanOrEqual: string, Equal: string, GreaterThan: string, GreaterThanOrEqual: string}}
+ * The where() method takes three parameters: a field to filter on, a comparison operation, and a value. The comparison can be <, <=, ==, >, >=, or array_contains
+ */
+// const operators = {
+//     LessThan: '>',
+//     LessThanOrEqual: '<=',
+//     Equal: '==',
+//     GreaterThan: '>',
+//     GreaterThanOrEqual: '>=',
+//     ArrayContain: 'array-contains',
+// };
+
+
+// exports [ swallowStoreInstance, operators];
+
+// export default swallowStoreInstance
+
+
+
+// export const Operators = {[
+//     LessThan = '>',
+//     LessThanOrEqual = '<=',
+//     Equal = '==',
+//     GreaterThan = '>',
+//     GreaterThanOrEqual = '>='
+//     ]}
+//
+
+// export const {
+//     swallowStoreInstance = new FirestoreDataModel(firebase)
+// }
+// export.exports enum Operators {
+//     LessThan = '>',
+//         LessThanOrEqual = '<=',
+//         Equal = '==',
+//         GreaterThan = '>',
+//         GreaterThanOrEqual = '>='
+// }
+//
+// export enum SortType {
+//     Ascending = 'asc',
+//         Descending = 'desc'
+// }
