@@ -14,10 +14,14 @@ require("firebase/firestore");
  */
 const _ = require("lodash");
 
+
+
 /**
  * @class FirestoreDataModel
  */
 class FirestoreDataModel {
+
+    static UNDEFINED = "undefined";
 
     constructor(firebaseParams) {
         this.config = null;
@@ -44,17 +48,18 @@ class FirestoreDataModel {
      * @param collection
      * @param params
      */
-    findOne(collection, params) {
+    findOne(collection, params, onSnapshot = false) {
+
         return new Promise((resolve, reject) => {
 
-            if (!collection || collection === "undefined") {
+            if (!collection || collection === FirestoreDataModel.UNDEFINED) {
                 return reject('You need to set collection as the first parameter before making any queries');
             }
-            if (!params || params === "undefined") {
+            if (!params || params === FirestoreDataModel.UNDEFINED) {
                 return reject('No params to making any queries');
             }
 
-            if ((!params.where || params.where === "undefined") && (!params.id || params.id === "undefined")) {
+            if ((!params.where || params.where === FirestoreDataModel.UNDEFINED) && (!params.id || params.id === FirestoreDataModel.UNDEFINED)) {
                 return reject('You need to set collection queries, like "where" or "id"');
             }
 
@@ -75,7 +80,7 @@ class FirestoreDataModel {
                     return resolve({});
                 }
             }).catch(function (error) {
-                return reject("Error getting document:", error);
+                return reject("Error getting document:"+ error);
             });
         });
     }
