@@ -5,8 +5,12 @@
  * @type {firebase}
  */
 const firebase = require("firebase");
-const operation = require('operators');
 require("firebase/firestore");
+
+/**
+ * @type {{LessThan: string, LessThanOrEqual: string, Equal: string, GreaterThan: string, GreaterThanOrEqual: string}}
+ */
+const operators = require('./operators');
 
 /**
  * @type {_|_.LoDashStatic}
@@ -14,25 +18,30 @@ require("firebase/firestore");
  */
 const _ = require("lodash");
 
-
-
 /**
  * @class FirestoreDataModel
  */
 class FirestoreDataModel {
 
-    static UNDEFINED = "undefined";
+    static UNDEFINED() {
+        return "undefined";
+    }
 
     constructor(firebaseParams) {
         this.config = null;
-        this.firestore = 1;
+        this.firestore = null;
         this.firesbase = firebaseParams;
+        this.version = '0.1.1';
     }
 
     initialize(config) {
         this.firestore = this.firesbase.initializeApp(config).firestore();
         const settings = {timestampsInSnapshots: true};
         this.firestore.settings(settings);
+    }
+
+    appVersion() {
+        return this.version;
     }
 
     setter(params) {
@@ -44,6 +53,7 @@ class FirestoreDataModel {
     }
 
     /**
+     * @since 0.1.0
      * https://firebase.google.com/docs/firestore/query-data/queries#simple_queries
      * @param collection
      * @param params
@@ -80,29 +90,36 @@ class FirestoreDataModel {
                     return resolve({});
                 }
             }).catch(function (error) {
-                return reject("Error getting document:"+ error);
+                return reject("Error getting document:" + error);
             });
         });
     }
 
     initFindOneQuery(collection, queries) {
+        return new Promise((resolve, reject) => {
+            let self = this;
+            if (!queries.id || queries.id === "undefined") {
+                this.collectionInstance = this.initCollection(collection);
+                let whereQuery = queries.where;
+                let query = self.collectionInstance;
 
-        let self = this;
-        if (!queries.id || queries.id === "undefined") {
-            this.collectionInstance = this.initCollection(collection);
-            let whereQuery = queries.where;
-            var query = self.collectionInstance;
+                /**
+                 * whereQueryvar
+                 */
+                if (whereQuery !== undefined) {
+                    const whereLoopQuery = self.whereLoop(whereQuery);
+                    if (!whereLoopQuery.error || whereLoopQuery.error === FirestoreDataModel.UNDEFINED) {
+                        query = self.whereLoop(whereQuery);
+                    } else {
+                        return reject(whereLoopQuery.error);
+                    }
+                }
 
-            /**
-             * whereQueryvar
-             */
-            if (whereQuery !== undefined) {
-                query = self.whereLoop(whereQuery);
+                return resolve(query.get());
+            } else {
+                return self.initQueryById(collection, queries.id);
             }
-            return query.get();
-        } else {
-            return self.initQueryById(collection, queries.id);
-        }
+        });
     }
 
     /**
@@ -114,22 +131,30 @@ class FirestoreDataModel {
      */
     whereLoop(whereQuery) {
         let self = this;
-        var query = self.collectionInstance;
+        let query = self.collectionInstance;
+        const promises = [];
 
-        var count = 0;
+        let count = 0;
         for (let i in whereQuery) {
             let whereStatement = whereQuery[i];
 
-            // if (typeof whereStatement === 'string') {
-            //     return {error: 'The WHERE query needs to be an array'};
-            // }
-            // if (whereQuery.length !== 3) {
-            //     return {error: 'The WHERE query needs to be 3 argument, but ' + whereQuery.length + ' was given'};
-            // }
+            if (typeof whereStatement === 'string') {
+                promises.push('The WHERE query needs to be an array');
+                break;
+            }
+
+            if (whereStatement.length !== 3) {
+                promises.push('The WHERE query needs to be 3 argument, but ' + whereStatement.length + ' was given');
+                break;
+            }
 
             /**
              * @type {firebase.firestore.field | firebase.firestore.operator | firebase.firestore.value
              */
+            if (!Object.values(operators).includes(whereStatement[1])) {
+                promises.push('You need to set an operator');
+                break;
+            }
             query = query.where(whereStatement[0], whereStatement[1], whereStatement[2]);
             count++;
 
@@ -137,12 +162,22 @@ class FirestoreDataModel {
                 return query;
             }
         }
+
+        return {error: promises};
     }
 
+    /**
+     * @param collection
+     * @return {firebase.firestore.CollectionReference | firebase.firestore.CollectionReference}
+     */
     initCollection(collection) {
         return this.firestoreInit().collection(collection);
     }
 
+    /**
+     * @param collection
+     * @param id
+     */
     initQueryById(collection, id) {
         return this.initCollection(collection).doc(id).get();
     }
@@ -160,59 +195,15 @@ class FirestoreDataModel {
         }
     }
 
+    /**
+     * @return {null|*}
+     */
     firestoreInit() {
-        // const config = this.getter();
-        // this.firestore = this.firesbase.initializeApp(config).firestore();
-
         return this.firestore;
     }
 }
 
-const swallowInstance = new FirestoreDataModel(firebase);
-module.exports = swallowInstance;
-
 /**
- * @des Operation for query against the collection
- * @type {{LessThan: string, LessThanOrEqual: string, Equal: string, GreaterThan: string, GreaterThanOrEqual: string}}
- * The where() method takes three parameters: a field to filter on, a comparison operation, and a value. The comparison can be <, <=, ==, >, >=, or array_contains
+ * @type {FirestoreDataModel}
  */
-// const operators = {
-//     LessThan: '>',
-//     LessThanOrEqual: '<=',
-//     Equal: '==',
-//     GreaterThan: '>',
-//     GreaterThanOrEqual: '>=',
-//     ArrayContain: 'array-contains',
-// };
-
-
-// exports [ swallowStoreInstance, operators];
-
-// export default swallowStoreInstance
-
-
-
-// export const Operators = {[
-//     LessThan = '>',
-//     LessThanOrEqual = '<=',
-//     Equal = '==',
-//     GreaterThan = '>',
-//     GreaterThanOrEqual = '>='
-//     ]}
-//
-
-// export const {
-//     swallowStoreInstance = new FirestoreDataModel(firebase)
-// }
-// export.exports enum Operators {
-//     LessThan = '>',
-//         LessThanOrEqual = '<=',
-//         Equal = '==',
-//         GreaterThan = '>',
-//         GreaterThanOrEqual = '>='
-// }
-//
-// export enum SortType {
-//     Ascending = 'asc',
-//         Descending = 'desc'
-// }
+module.exports = new FirestoreDataModel(firebase);

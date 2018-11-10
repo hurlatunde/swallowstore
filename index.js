@@ -1,6 +1,8 @@
+'use strict';
+
 /**
  * author Olatunde Owokoniran || hurlatunde@gmail.com
  * @type {*|FirestoreDataModel}
  */
-require("./dist/operators");
-require("./dist/index");
+//
+module.exports = require('./swallowstore');
