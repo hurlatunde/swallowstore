@@ -58,7 +58,7 @@ class FirestoreDataModel {
      * @param collection
      * @param params
      */
-    findOne(collection, params, onSnapshot = false) {
+    findOne(collection, params) {
 
         return new Promise((resolve, reject) => {
 
@@ -77,7 +77,10 @@ class FirestoreDataModel {
             let id = params.id;
             let self = this;
 
-            return self.initFindOneQuery(collection, {'where': where, 'id': id}).then(function (doc) {
+            return self.initFindOneQuery(collection, {
+                'where': where,
+                'id': id
+            }).then(function (doc) {
                 let response = doc.docs[0];
                 if (_.isEmpty(response) === false) {
                     const data = response.data();
@@ -101,6 +104,7 @@ class FirestoreDataModel {
             if (!queries.id || queries.id === "undefined") {
                 this.collectionInstance = this.initCollection(collection);
                 let whereQuery = queries.where;
+                let orderByQuery = queries.orderBy;
                 let query = self.collectionInstance;
 
                 /**
@@ -113,6 +117,13 @@ class FirestoreDataModel {
                     } else {
                         return reject(whereLoopQuery.error);
                     }
+                }
+
+                /**
+                 * orderByQuery
+                 */
+                if (orderByQuery !== undefined) {
+                    query = self.collectionInstance.orderBy(orderByQuery);
                 }
 
                 return resolve(query.get());
@@ -196,7 +207,7 @@ class FirestoreDataModel {
     }
 
     /**
-     * @return {null|*}
+     * @return {null|firestore init}
      */
     firestoreInit() {
         return this.firestore;
