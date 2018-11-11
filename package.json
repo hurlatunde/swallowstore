@@ -1,6 +1,6 @@
 {
   "name": "swallowstore",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "A flexible easy to use Google Cloud Firestore API Wrapper class for Node.JS",
   "main": "index.js",
   "scripts": {
