@@ -12,6 +12,8 @@ require("firebase/firestore");
  */
 const operators = require('./operators');
 
+const Debugger = require('./debugger');
+
 /**
  * @type {_|_.LoDashStatic}
  * @private
@@ -28,10 +30,14 @@ class FirestoreDataModel {
     }
 
     constructor(firebaseParams) {
+        this.isDebug = true //local state turn me off to see
+        this.debug = Debugger(this.isDebug, this);
+        this.debug.warn('swallowstore is working');
         this.config = null;
         this.firestore = null;
         this.firesbase = firebaseParams;
         this.version = '0.1.1';
+        this._limit = 3;
     }
 
     initialize(config) {
@@ -52,18 +58,26 @@ class FirestoreDataModel {
         return this.config;
     }
 
-    findAll(collection, params) {
+    /**
+     * @since 0.1.0
+     * https://firebase.google.com/docs/firestore/query-data/queries#simple_queries
+     * @param collection
+     * @param params
+     * @return {Promise}
+     */
+    findAll(collection, params = {}) {
         return new Promise((resolve, reject) => {
 
             if (!collection || collection === FirestoreDataModel.UNDEFINED) {
                 return reject('You need to set collection as the first parameter before making any queries');
             }
-            if (!params || params === FirestoreDataModel.UNDEFINED) {
-                return reject('No params to making any queries');
+
+            if (params.id) {
+                return reject('#findAll does not support "id" params, use #findOne to be able to use query by "id"');
             }
 
-            if ((!params.where || params.where === FirestoreDataModel.UNDEFINED) && (!params.id || params.id === FirestoreDataModel.UNDEFINED)) {
-                return reject('You need to set collection queries, like "where" or "id"');
+            if ((params.where && params.where === FirestoreDataModel.UNDEFINED)) {
+                return reject('You need to set collection queries, like "where"');
             }
 
             let where = params.where;
@@ -73,7 +87,7 @@ class FirestoreDataModel {
             let self = this;
 
             if (!limit || limit === FirestoreDataModel.UNDEFINED) {
-                limit = 20;
+                limit = this._limit;
             } else {
                 limit = parseInt(limit);
             }
@@ -83,9 +97,27 @@ class FirestoreDataModel {
                 'orderBy': orderBy,
                 'limit': limit
             }).then((res) => {
+                let count = res.size;
+                let response = res.empty;
+
+                let data = [];
+                res.docs.forEach(function (childSnapshot) {
+                    let key = childSnapshot.id;
+                    let childData = childSnapshot.data();
+                    childData.node_id = key;
+                    childData.id = key;
+                    data.push(childData);
+                });
+
+                if (count > 0) {
+                    response = true;
+                } else {
+                    response = false;
+                }
+                return resolve({data: data, response: response, response_count: count});
 
             }).catch((error) => {
-
+                return reject("Error getting documents:" +error);
             })
         });
     }
@@ -95,8 +127,9 @@ class FirestoreDataModel {
      * https://firebase.google.com/docs/firestore/query-data/queries#simple_queries
      * @param collection
      * @param params
+     * @return {Promise}
      */
-    findOne(collection, params) {
+    findOne(collection, params = {}) {
         return new Promise((resolve, reject) => {
 
             if (!collection || collection === FirestoreDataModel.UNDEFINED) {
@@ -253,6 +286,10 @@ class FirestoreDataModel {
      */
     firestoreInit() {
         return this.firestore;
+    }
+
+    _debugger(params) {
+        return this.debug.warn(params);
     }
 }
 
