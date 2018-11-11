@@ -1,6 +1,13 @@
 Swallowstore
 =========
 
+[![npm version](https://badge.fury.io/js/swallowstore.svg)](https://badge.fury.io/js/swallowstore)
+[![NPM](https://nodei.co/npm/swallowstore.png?mini=true)](https://nodei.co/npm/swallowstore/)
+[![GitHub file size](https://img.shields.io/github/size/webcaetano/craft/build/phaser-craft.min.js.svg)](https://github.com/hurlatunde/swallowstore)
+[![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/hurlatunde/swallowstore)
+[![GitHub](https://david-dm.org/hurlatunde/swallowstore.svg)](https://github.com/hurlatunde/swallowstore)
+
+
 A flexible easy to use Google Cloud Firestore API Wrapper class for Node.JS
 
 ## Installation
