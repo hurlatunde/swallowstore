@@ -52,14 +52,7 @@ class FirestoreDataModel {
         return this.config;
     }
 
-    /**
-     * @since 0.1.0
-     * https://firebase.google.com/docs/firestore/query-data/queries#simple_queries
-     * @param collection
-     * @param params
-     */
-    findOne(collection, params) {
-
+    findAll(collection, params) {
         return new Promise((resolve, reject) => {
 
             if (!collection || collection === FirestoreDataModel.UNDEFINED) {
@@ -75,36 +68,85 @@ class FirestoreDataModel {
 
             let where = params.where;
             let id = params.id;
+            let orderBy = params.orderBy;
+            let limit = params.limit;
             let self = this;
 
-            return self.initFindOneQuery(collection, {
+            if (!limit || limit === FirestoreDataModel.UNDEFINED) {
+                limit = 20;
+            } else {
+                limit = parseInt(limit);
+            }
+
+            return self.initCollectionWithQueries(collection, {
                 'where': where,
+                'orderBy': orderBy,
+                'limit': limit
+            }).then((res) => {
+
+            }).catch((error) => {
+
+            })
+        });
+    }
+
+    /**
+     * @since 0.1.0
+     * https://firebase.google.com/docs/firestore/query-data/queries#simple_queries
+     * @param collection
+     * @param params
+     */
+    findOne(collection, params) {
+        return new Promise((resolve, reject) => {
+
+            if (!collection || collection === FirestoreDataModel.UNDEFINED) {
+                return reject('You need to set collection as the first parameter before making any queries');
+            }
+            if (!params || params === FirestoreDataModel.UNDEFINED) {
+                return reject('No params to making any queries');
+            }
+
+            if ((!params.where || params.where === FirestoreDataModel.UNDEFINED) && (!params.id || params.id === FirestoreDataModel.UNDEFINED)) {
+                return reject('You need to set collection queries, like "where" or "id"');
+            }
+
+            let where = params.where;
+            let id = params.id;
+            let limit = 1;
+            let self = this;
+
+            return self.initCollectionWithQueries(collection, {
+                'where': where,
+                'limit': limit,
                 'id': id
             }).then(function (doc) {
-                let response = doc.docs[0];
-                if (_.isEmpty(response) === false) {
-                    const data = response.data();
-                    if (_.isEmpty(id) === false) {
-                        return resolve(_.merge(data, {id: id, node_id: response.id}));
+                if (_.isEmpty(id) !== false) {
+                    let response = doc.docs[0];
+                    if (_.isEmpty(response) === false) {
+                        const data = response.data();
+                        return resolve(_.merge(data, {node_id: response.id, id: response.id}));
                     } else {
-                        return resolve(data);
+                        return resolve({});
                     }
                 } else {
-                    return resolve({});
+                    const data = doc.data();
+                    return resolve(_.merge(data, {node_id: doc.id, id: doc.id}));
                 }
             }).catch(function (error) {
+                console.log(error);
                 return reject("Error getting document:" + error);
             });
         });
     }
 
-    initFindOneQuery(collection, queries) {
+    initCollectionWithQueries(collection, queries) {
         return new Promise((resolve, reject) => {
             let self = this;
             if (!queries.id || queries.id === "undefined") {
                 this.collectionInstance = this.initCollection(collection);
                 let whereQuery = queries.where;
                 let orderByQuery = queries.orderBy;
+                let limitQuery = queries.limit;
                 let query = self.collectionInstance;
 
                 /**
@@ -126,9 +168,9 @@ class FirestoreDataModel {
                     query = self.collectionInstance.orderBy(orderByQuery);
                 }
 
-                return resolve(query.get());
+                return resolve(query.limit(limitQuery).get());
             } else {
-                return self.initQueryById(collection, queries.id);
+                return resolve(self.initQueryById(collection, queries.id));
             }
         });
     }
