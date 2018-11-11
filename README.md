@@ -70,8 +70,8 @@ Get One document in a collection by ID.
 **Sample Code:**
 ```javascript
 
-// Get all users by id
-swallowInstance.findOne('users', '5ixWj00cZYDirdz9CCJd').then(response => {
+// Get user by id 
+swallowInstance.findById('users', '5ixWj00cZYDirdz9CCJd').then(response => {
     console.log("users with id '5ixWj00cZYDirdz9CCJd' detail:", response);
 });
 ```
@@ -96,7 +96,7 @@ swallowInstance.findOne('users', { id: '5ixWj00cZYDirdz9CCJd' }).then(response =
     console.log("users with id '5ixWj00cZYDirdz9CCJd' detail:", response);
 });
 
-// Get user by condition
+// Get user by condition(s)
 const conditions = {
     'where': [
         ['email', '==', 'hurlatunde@gmail.com']
@@ -130,7 +130,7 @@ swallowInstance.findAll('users').then(response => {
     console.log("All users: ", response);
 });
 
-// Get all users by condition
+// Get all users by condition(s)
 const conditions = {
     'where': [
         ['age', '>=', 20]
