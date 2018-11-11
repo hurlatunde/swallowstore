@@ -60,6 +60,38 @@ class FirestoreDataModel {
 
     /**
      * @since 0.1.0
+     * https://firebase.google.com/docs/firestore/query-data/get-data#get_multiple_documents_from_a_collection
+     * @param collection
+     * @param id
+     * @return {Promise}
+     */
+    findById(collection, id) {
+        return new Promise((resolve, reject) => {
+
+            if (!collection || collection === FirestoreDataModel.UNDEFINED) {
+                return reject('You need to set collection as the first parameter before making any queries');
+            }
+
+            if (!id || id === FirestoreDataModel.UNDEFINED) {
+                return reject('#findById needs "id" params');
+            }
+
+            let self = this;
+            return self.initQueryById(collection, id).then((doc) => {
+                if (!doc.exists) {
+                    return resolve('No such document!');
+                } else {
+                    const data = doc.data();
+                    return resolve(_.merge(data, {node_id: doc.id, id: doc.id}));
+                }
+            }).catch((error) => {
+                return reject("Error getting document:" + error);
+            })
+        });
+    }
+
+    /**
+     * @since 0.1.0
      * https://firebase.google.com/docs/firestore/query-data/queries#simple_queries
      * @param collection
      * @param params
@@ -152,7 +184,7 @@ class FirestoreDataModel {
                 'where': where,
                 'limit': limit,
                 'id': id
-            }).then(function (doc) {
+            }).then((doc) => {
                 if (_.isEmpty(id) !== false) {
                     let response = doc.docs[0];
                     if (_.isEmpty(response) === false) {
@@ -165,8 +197,7 @@ class FirestoreDataModel {
                     const data = doc.data();
                     return resolve(_.merge(data, {node_id: doc.id, id: doc.id}));
                 }
-            }).catch(function (error) {
-                console.log(error);
+            }).catch((error) => {
                 return reject("Error getting document:" + error);
             });
         });
