@@ -33,7 +33,7 @@ A flexible easy to use Google Cloud Firestore API Wrapper class for Node.JS
     console.log(response);
   });
   ```
-  Available Methods: *findById(), findOne(), findAll(), save(), update(), delete()*
+  Available Methods: *findById(), findOne(), findAll(), saveAndUpdate(), delete()*
 
 
 # API Reference
@@ -108,6 +108,60 @@ swallowInstance.findOne('users', conditions).then(response => {
     console.log("user:", response);
 });
 ```
+
+
+##### `.saveAndUpdate(collectionName: string, data: Object, id: String ): Promise<ResultData>`
+
+Add / Update a document.
+
+**Parameters:**
+- `data` A document object
+- `id` The document ID
+
+**Returns:**
+- `ResultData` object or `null`
+
+**Sample Code:**
+```javascript
+
+// Add a user with auto-generated ID
+const userObject = {
+    name: 'Kat',
+    email: 'kat@email.com',
+    gender: 'female'
+};
+
+swallowInstance.saveAndUpdate('users', userObject).then(response => {
+    console.log("Add Result (auto-generated ID):", response);
+});
+// response { node_id: 'BQFNY9pQDhZOarvmoMSB' }
+
+// Add a user with custom ID
+const userObject = {
+    node_id: 'BQFNY9pQDhZOarvmoMSB',
+    name: 'Gary',
+    email: 'gary@email.com',
+    gender: 'male'
+};
+
+swallowInstance.saveAndUpdate('users', userObject).then(response => {
+    console.log("Add Result (custom ID):", response);
+});
+// response { node_id: 'BQFNY9pQDhZOarvmoMSB' }
+
+
+// Update a user with ID
+const userObject = {
+    current_project: 'swallowstore',
+};
+
+swallowInstance.saveAndUpdate('users', userObject, 'BQFNY9pQDhZOarvmoMSB').then(response => {
+    console.log("Updated Result:", response);
+});
+// response { node_id: 'BQFNY9pQDhZOarvmoMSB' }
+
+```
+
 
   
 ##### `.findAll(collectionName: string, { conditions: Array<Condition> = null, orderBy: Array<OrderBy> = null, limit: number = null } ): Promise<Document[]>`

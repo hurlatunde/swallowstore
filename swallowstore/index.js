@@ -5,6 +5,8 @@
  * @type {firebase}
  */
 const firebase = require("firebase");
+const FieldValue = require('firebase-admin').firestore.FieldValue;
+
 require("firebase/firestore");
 
 /**
@@ -44,6 +46,8 @@ class FirestoreDataModel {
         this.firestore = this.firesbase.initializeApp(config).firestore();
         const settings = {timestampsInSnapshots: true};
         this.firestore.settings(settings);
+
+        return this.firestore !== null;
     }
 
     appVersion() {
@@ -56,6 +60,49 @@ class FirestoreDataModel {
 
     getter() {
         return this.config;
+    }
+
+    /**
+     * @since 0.1.0
+     * @ref https://firebase.google.com/docs/firestore/manage-data/add-data
+     * @param collection
+     * @param params
+     * @param id
+     * @return {Promise}
+     */
+    saveAndUpdate(collection, params, id) {
+        return new Promise((resolve, reject) => {
+            let self = this;
+            if (!id || id === "undefined") {
+                /**
+                 * Creating new collection
+                 */
+                if (!params.created_at || params.created_at === "undefined") {
+                    params.created_at = new Date().valueOf();
+                    params.modified_at = new Date().valueOf();
+                }
+
+                return self.initCreate(collection, params).then((docRef) => {
+                    if (!params.node_id || params.node_id === "undefined") {
+                        return resolve({'node_id': docRef.id});
+                    } else {
+                        return resolve({'node_id': params.node_id});
+                    }
+                }).catch((error) => {
+                    return reject("Error writing document: ", error);
+                });
+            } else {
+                /**
+                 * updating collection
+                 */
+                params.modified_at = new Date().valueOf();
+                return self.initUpdate(collection, id, params).then(() => {
+                    return resolve({'node_id': id});
+                }).catch((error) => {
+                    return reject(error);
+                });
+            }
+        });
     }
 
     /**
@@ -149,7 +196,7 @@ class FirestoreDataModel {
                 return resolve({data: data, response: response, response_count: count});
 
             }).catch((error) => {
-                return reject("Error getting documents:" +error);
+                return reject("Error getting documents:" + error);
             })
         });
     }
@@ -307,8 +354,7 @@ class FirestoreDataModel {
         if (!objectData.node_id || objectData.node_id === "undefined") {
             return this.initCollection(collection).add(objectData);
         } else {
-            const node_id = objectData.node_id;
-            return this.initCollection(collection).doc(node_id).set(objectData);
+            return this.initCollection(collection).doc(objectData.node_id).set(objectData);
         }
     }
 
@@ -316,6 +362,10 @@ class FirestoreDataModel {
      * @return {null|firestore init}
      */
     firestoreInit() {
+        if (this.firestore === null) {
+            this.debug.warn('Firestore config not set. please use "swallowInstance.initialize()"');
+            return null
+        }
         return this.firestore;
     }
 
