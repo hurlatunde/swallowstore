@@ -5,8 +5,6 @@
  * @type {firebase}
  */
 const firebase = require("firebase");
-const FieldValue = require('firebase-admin').firestore.FieldValue;
-
 require("firebase/firestore");
 
 /**
@@ -201,6 +199,64 @@ class FirestoreDataModel {
         });
     }
 
+    paginator(collection) {
+
+        let self = this;
+        let _collection = null;
+        let _currentPage = null;
+        let _where = null;
+        let _limit = null;
+        let _orderBy = null;
+        let _firstResponseInit = false;
+        let _firstResponse = false;
+
+        return {
+            params: function (params) {
+
+                return new Promise((resolve, reject) => {
+
+                    if (!collection || collection === FirestoreDataModel.UNDEFINED) {
+                        return reject('You need to set collection as the first parameter before making any queries');
+                    }
+
+                    if ((params.where || params.where === FirestoreDataModel.UNDEFINED)) {
+                        return reject('You need to set collection queries, like "where"');
+                    }
+
+                    _where = params.where;
+                    _limit = (params.limit) ? params.limit : 2;
+                    _collection = collection;
+                    _orderBy = params.orderBy;
+                    _firstResponseInit = true;
+
+                    return self.paginateCollections(_collection, {
+                        'where': _where,
+                        'limit': _limit,
+                        'orderBy': _orderBy,
+                    });
+
+                });
+            },
+
+            next: function () {
+                if (_firstResponseInit) {
+                    console.log('_firstResponseInit', _firstResponseInit);
+                    console.log('paginate_limit', _limit);
+                    console.log('*******************************');
+
+                    return self.paginateCollections(_collection, {
+                        'where': _where,
+                        'limit': _limit,
+                        'orderBy': _orderBy,
+                    });
+                } else {
+
+                }
+            }
+        }
+
+    }
+
     /**
      * @since 0.1.0
      * https://firebase.google.com/docs/firestore/query-data/queries#simple_queries
@@ -346,10 +402,21 @@ class FirestoreDataModel {
         return this.initCollection(collection).doc(id).get();
     }
 
+    /**
+     * @param collection
+     * @param doc
+     * @param objectData
+     * @return {Promise.<void>|Promise<void>}
+     */
     initUpdate(collection, doc, objectData) {
         return this.initCollection(collection).doc(doc).update(objectData);
     }
 
+    /**
+     * @param collection
+     * @param objectData
+     * @return {*}
+     */
     initCreate(collection, objectData) {
         if (!objectData.node_id || objectData.node_id === "undefined") {
             return this.initCollection(collection).add(objectData);
@@ -358,8 +425,54 @@ class FirestoreDataModel {
         }
     }
 
+
     /**
-     * @return {null|firestore init}
+     *
+     * @param collection
+     * @param params
+     * @return {Promise}
+     */
+    paginateCollections(collection, params = {}) {
+        return new Promise((resolve, reject) => {
+            return this.initCollectionWithQueries(collection, params).then((res) => {
+
+                let count = res.size;
+                let response = res.empty;
+
+                //_currentPage = 1;
+                //first
+                // last
+
+
+                const lastVisible = res.docs[res.docs.length - 1];
+
+                let data = [];
+                res.docs.forEach(function (childSnapshot) {
+                    let key = childSnapshot.id;
+                    let childData = childSnapshot.data();
+                    childData.node_id = key;
+                    childData.id = key;
+                    data.push(childData);
+                });
+
+                //console.log('lastVisible', lastVisible);
+                //console.log(data);
+                console.log('lastVisible', res.docs.length);
+
+                if (count > 0) {
+                    response = true;
+                } else {
+                    response = false;
+                }
+                return resolve({data: data, response: response, response_count: count});
+            }).catch((error) => {
+                return reject("Error getting paginate document:" + error);
+            })
+        });
+    }
+
+    /**
+     * @return {*}
      */
     firestoreInit() {
         if (this.firestore === null) {
