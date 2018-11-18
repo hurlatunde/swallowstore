@@ -33,7 +33,7 @@ A flexible easy to use Google Cloud Firestore API Wrapper class for Node.JS
     console.log(response);
   });
   ```
-  Available Methods: *findById(), findOne(), findAll(), saveAndUpdate(), delete()*
+  Available Methods: *findById(), findOne(), findAll(), saveAndUpdate(), paginator(), delete()*
 
 
 # API Reference
@@ -163,7 +163,6 @@ swallowInstance.saveAndUpdate('users', userObject, 'BQFNY9pQDhZOarvmoMSB').then(
 ```
 
 
-  
 ##### `.findAll(collectionName: string, { conditions: Array<Condition> = null, orderBy: Array<OrderBy> = null, limit: number = null } ): Promise<Document[]>`
 
 Get document in a collection.
@@ -195,5 +194,38 @@ const conditions = {
 
 swallowInstance.findAll('users', conditions).then(response => {
     console.log("All users with age >= '20' & likes >= '200', limit '5':", response);
+});
+```
+
+##### `.paginator(collectionName: string): paginatorDocument{}`
+
+Get paginate document in a collection.
+
+**Parameters:**
+- `conditions` Array of conditions
+- `orderBy` Field name to order by
+- `limit` Number of documents to retrieve || default is 20
+
+**Returns:**
+- Array of `Document` object
+
+**Sample Code:**
+```javascript
+
+// Get all users
+let paginateInit;
+paginateInit = swallowInstance.paginator('users');
+paginateInit.params({'limit': 2, 'orderBy': 'full_name'}).then(({data}) => {
+    console.log(data);
+});
+    
+// Get the next index of user collection by condition(s)
+paginateInit.next().then(({data}) => {
+    console.log("next users collection: ",data);
+});
+
+// Get the previous index of user collection by condition(s)
+paginateInit.previous().then(({data}) => {
+    console.log("previous users collection: ",data);
 });
 ```
