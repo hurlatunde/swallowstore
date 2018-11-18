@@ -244,7 +244,6 @@ class FirestoreDataModel {
                         if (response.error) {
                             return reject(response.error);
                         } else {
-                            // console.log('response.lastVisible;', response.lastVisible);
                             _firstVisible = response.firstVisible;
                             _lastVisible = response.lastVisible;
 
@@ -301,7 +300,6 @@ class FirestoreDataModel {
                 });
             }
         }
-
     }
 
     /**
@@ -386,10 +384,10 @@ class FirestoreDataModel {
                 }
 
 
-                if(lastVisible !== null){
+                if (lastVisible !== null) {
                     query = query.startAfter(lastVisible);
                 }
-                if(firstVisible !== null){
+                if (firstVisible !== null) {
                     query = query.endBefore(firstVisible);
                 }
 
@@ -491,53 +489,39 @@ class FirestoreDataModel {
      * @param callback
      */
     paginateCollections(collection, params = {}, callback) {
-            return this.initCollectionWithQueries(collection, params).then((res) => {
+        return this.initCollectionWithQueries(collection, params).then((res) => {
 
-                let count = res.size;
-                let response = res.empty;
-                // let endOfList;
+            let count = res.size;
+            let response = res.empty;
+            // let endOfList;
 
-                // if (res.docs.length === 0) return endOfList = true;
+            // get the first document of response
+            const firstVisible = res.docs[0];
+            // get the last document of response
+            const lastVisible = res.docs[res.docs.length - 1];
 
-
-                //_currentPage = 1;
-                //first
-                // last
-
-                // get the first document of response
-                const firstVisible = res.docs[0];
-                // get the last document of response
-                const lastVisible = res.docs[res.docs.length - 1];
-
-                console.log('lastVisible_id', lastVisible.id);
-
-                let data = [];
-                res.docs.forEach(function (childSnapshot) {
-                    let key = childSnapshot.id;
-                    let childData = childSnapshot.data();
-                    childData.node_id = key;
-                    childData.id = key;
-                    data.push(childData);
-                });
-
-                //console.log('lastVisible', lastVisible);
-                //console.log(data);
-                // console.log('lastVisible', res.docs.length);
-
-                if (count > 0) {
-                    response = true;
-                } else {
-                    response = false;
-                }
-                return callback({
-                    res: {data: data, response: response, response_count: count},
-                    lastVisible: lastVisible,
-                    firstVisible: firstVisible,
-                    // endOfList: endOfList
-                });
-            }).catch((error) => {
-                return callback({error: "Error getting paginate document:" + error});
+            let data = [];
+            res.docs.forEach(function (childSnapshot) {
+                let key = childSnapshot.id;
+                let childData = childSnapshot.data();
+                childData.node_id = key;
+                childData.id = key;
+                data.push(childData);
             });
+
+            if (count > 0) {
+                response = true;
+            } else {
+                response = false;
+            }
+            return callback({
+                res: {data: data, response: response, response_count: count},
+                lastVisible: lastVisible,
+                firstVisible: firstVisible,
+            });
+        }).catch((error) => {
+            return callback({error: "Error getting paginate document:" + error});
+        });
     }
 
     /**

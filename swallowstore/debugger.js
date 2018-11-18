@@ -13,7 +13,7 @@ const Debugger = function (gState, klass) {
     // if (!window.console) return function () {
     // }
 
-    console.log(gState, klass)
+    // console.log(gState, klass)
 
     if (gState && klass.isDebug) {
         for (let m in console)

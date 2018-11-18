@@ -20,12 +20,8 @@ A flexible easy to use Google Cloud Firestore API Wrapper class for Node.JS
   
   //swallowstore initialize with firestore config
   swallowInstance.initialize({
-      apiKey: "AIzaQQZIxwSyB8_EPfEZWfBQLUrbWOTMTiZoByA",
-      authDomain: "my-first-project.firebaseapp.com",
-      databaseURL: "https://my-first-project.firebaseio.com",
+      databaseURL: "https://my-first-project.com",
       projectId: "my-first-project",
-      storageBucket: "my-first-project.appspot.com",
-      messagingSenderId: "288194683984"
   })
 
   // Get all users
