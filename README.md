@@ -61,7 +61,6 @@ Get One document in a collection by ID.
 
 **Sample Code:**
 ```javascript
-
 // Get user by id 
 swallowInstance.findById('users', '5ixWj00cZYDirdz9CCJd').then(response => {
     console.log("users with id '5ixWj00cZYDirdz9CCJd' detail:", response);
@@ -115,7 +114,6 @@ Add / Update a document.
 
 **Sample Code:**
 ```javascript
-
 // Add a user with auto-generated ID
 const userObject = {
     name: 'Kat',
@@ -143,10 +141,6 @@ swallowInstance.saveAndUpdate('users', userObject).then(response => {
 
 
 // Update a user with ID
-const userObject = {
-    current_project: 'swallowstore',
-};
-
 swallowInstance.saveAndUpdate('users', userObject, 'BQFNY9pQDhZOarvmoMSB').then(response => {
     console.log("Updated Result:", response);
 });
