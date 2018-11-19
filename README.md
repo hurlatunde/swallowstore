@@ -44,12 +44,8 @@ Set collection firebase Config.
   ```javascript  
   //swallowstore initialize with firestore config
   swallowInstance.initialize({
-      apiKey: "AIzaSyB8_EPfEZWfBQLUrbWOTMTiZoByQQZIxwA",
-      authDomain: "my-first-project-5961c.firebaseapp.com",
-      databaseURL: "https://my-first-project-5961c.firebaseio.com",
-      projectId: "my-first-project-5961c",
-      storageBucket: "my-first-project-5961c.appspot.com",
-      messagingSenderId: "281946839884"
+      databaseURL: "https://my-first-project.com",
+      projectId: "my-first-project",
   })
   ```
   
