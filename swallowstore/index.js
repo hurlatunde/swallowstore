@@ -199,6 +199,31 @@ class FirestoreDataModel {
         });
     }
 
+    /**
+     * @since 0.1.0
+     * https://firebase.google.com/docs/firestore/query-data/queries#simple_queries
+     * @param collection
+     * @param id
+     * @return {Promise}
+     */
+    delete(collection, id) {
+        return new Promise((resolve, reject) => {
+            if (!collection || collection === FirestoreDataModel.UNDEFINED) {
+                return reject('You need to set collection as the first parameter before making any queries');
+            }
+
+            if (!id || id === FirestoreDataModel.UNDEFINED) {
+                return reject('#delete needs "id" params');
+            }
+
+            this.initCollection(collection).doc(id).delete().then((doc) => {
+                return resolve(doc);
+            }).catch((error) => {
+                return reject("Error deleting document:" + error);
+            })
+        });
+    }
+
     // /**
     //  *
     //  * @param collection

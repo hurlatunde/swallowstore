@@ -225,3 +225,21 @@ paginateInit.previous().then(({data}) => {
     console.log("previous users collection: ",data);
 });
 ```
+
+##### `delete(collectionName: string, id: string): Promise<ResultData>`
+
+Delete a document
+
+**Parameters:**
+- `id` The document ID
+
+**Returns:**
+- `ResultData` object or `null`
+
+**Sample Code:**
+```javascript
+// Delete a user by ID
+swallowInstance.delete('5GQroquotzc3iWbHQaBt').then(result => {
+    console.log("Delete Result:", result);
+});
+```
