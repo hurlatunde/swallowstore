@@ -229,7 +229,7 @@ Delete a document
 **Sample Code:**
 ```javascript
 // Delete a user by ID
-swallowInstance.delete('5GQroquotzc3iWbHQaBt').then(result => {
+swallowInstance.delete('users', {'id' : 'HnjIzeysNmi4DLL2tFUJ'}).then((res) => {
     console.log("Delete Result:", result);
 });
 ```
