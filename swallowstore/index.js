@@ -4,8 +4,9 @@
  * @ref https://firebase.google.com/docs/firestore/quickstart
  * @type {firebase}
  */
-const firebase = require("firebase");
+const firebase = require("firebase/app");
 require("firebase/firestore");
+
 
 /**
  * @type {{LessThan: string, LessThanOrEqual: string, Equal: string, GreaterThan: string, GreaterThanOrEqual: string}}
@@ -30,9 +31,9 @@ class FirestoreDataModel {
     }
 
     constructor(firebaseParams) {
-        this.isDebug = true //local state turn me off to see
-        this.debug = Debugger(this.isDebug, this);
-        this.debug.warn('swallowstore is working');
+        //this.isDebug = true //local state turn me off to see
+        //this.debug = Debugger(this.isDebug, this);
+        //this.debug.warn('swallowstore is working');
         this.config = null;
         this.firestore = null;
         this.firesbase = firebaseParams;
