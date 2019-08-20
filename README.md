@@ -54,7 +54,7 @@ Set collection firebase Config.
 Get One document in a collection by ID.
 
 **Parameters:**
-- `id` The document ID
+- `id` The document ID /  `ids` The document IDs
 
 **Returns:**
 - A `Document` object or `null`
@@ -64,6 +64,11 @@ Get One document in a collection by ID.
 // Get user by id 
 swallowInstance.findById('users', '5ixWj00cZYDirdz9CCJd').then(response => {
     console.log("users with id '5ixWj00cZYDirdz9CCJd' detail:", response);
+});
+
+// Get user by ids
+swallowInstance.findById('users', ['0Qq4GEfXPsc2ixvDZv8MFEcu2ek1', '0Qq4GEfXPsc2ixvDZv8MFEcu2ek1']).then(response => {
+    console.log("users with ids '['0Qq4GEfXPsc2ixvDZv8MFEcu2ek1', '0Qq4GEfXPsc2ixvDZv8MFEcu2ek1']' detail:", response);
 });
 ```
 
