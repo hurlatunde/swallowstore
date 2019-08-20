@@ -42,9 +42,11 @@ class FirestoreDataModel {
 
     initialize(config) {
         this.firestore = this.firesbase.initializeApp(config).firestore();
-        const settings = {timestampsInSnapshots: true};
-        this.firestore.settings(settings);
+        // const settings = {timestampsInSnapshots: true};
 
+        //const timestamp = snapshot.get('created_at').toDate();
+        // const settings = {timestampsInSnapshots: false};
+        // this.firestore.settings(settings);
         return this.firestore !== null;
     }
 
@@ -107,32 +109,56 @@ class FirestoreDataModel {
      * @since 0.1.0
      * https://firebase.google.com/docs/firestore/query-data/get-data#get_multiple_documents_from_a_collection
      * @param collection
-     * @param id
+     * @param id /ids
      * @return {Promise}
      */
-    findById(collection, id) {
+    findById(collection, params) {
         return new Promise((resolve, reject) => {
 
             if (!collection || collection === FirestoreDataModel.UNDEFINED) {
                 return reject('You need to set collection as the first parameter before making any queries');
             }
 
-            if (!id || id === FirestoreDataModel.UNDEFINED) {
-                return reject('#findById needs "id" params');
+            if (!params || params === FirestoreDataModel.UNDEFINED) {
+                return reject('#findById needs "id/ids" params');
             }
 
             let self = this;
-            return self.initQueryById(collection, id).then((doc) => {
-                if (!doc.exists) {
-                    return resolve('No such document!');
+            if (typeof (params) === 'object') {
+                if (JSON.stringify(params) === '{}' || JSON.stringify(params) === '[]') {
+                    return reject('Empty ids params');
                 } else {
-                    const data = doc.data();
-                    return resolve(_.merge(data, {node_id: doc.id, id: doc.id}));
+                    let ids = params;
+                    return Promise.all(ids.map(id => {
+                        return self.initQueryById(collection, id)
+                            .then(doc => {
+                                if (doc.exists) {
+                                    let data = doc.data()
+                                    return resolve(_.merge(data, {node_id: doc.id, id: doc.id}));
+                                } else {
+                                    return reject("'No such document!")
+                                }
+                            })
+                            .catch(e => {
+                                return reject("Error getting document:" + e)
+                            })
+                    }))
                 }
-            }).catch((error) => {
-                return reject("Error getting document:" + error);
-            })
+            } else {
+                let id = params;
+                return self.initQueryById(collection, id).then((doc) => {
+                    if (!doc.exists) {
+                        return resolve('No such document!');
+                    } else {
+                        const data = doc.data();
+                        return resolve(_.merge(data, {node_id: doc.id, id: doc.id}));
+                    }
+                }).catch((error) => {
+                    return reject("Error getting document:" + error);
+                })
+            }
         });
+
     }
 
     /**
