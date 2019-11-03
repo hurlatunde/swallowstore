@@ -146,16 +146,7 @@ class FirestoreDataModel {
                 }
             } else {
                 let id = params;
-                return self.initQueryById(collection, id).then((doc) => {
-                    if (!doc.exists) {
-                        return resolve('No such document!');
-                    } else {
-                        const data = doc.data();
-                        return resolve(_.merge(data, {node_id: doc.id, id: doc.id}));
-                    }
-                }).catch((error) => {
-                    return reject("Error getting document:" + error);
-                })
+                return self.__initQueryById(collection, id)
             }
         });
 
@@ -379,26 +370,46 @@ class FirestoreDataModel {
             let limit = 1;
             let self = this;
 
-            return self.initCollectionWithQueries(collection, {
-                'where': where,
-                'limit': limit,
-                'id': id
-            }).then((doc) => {
-                if (_.isEmpty(id) !== false) {
-                    let response = doc.docs[0];
-                    if (_.isEmpty(response) === false) {
-                        const data = response.data();
-                        return resolve(_.merge(data, {node_id: response.id, id: response.id}));
+            if (typeof where !== "undefined" || !where) {
+                return self.__initQueryById(collection, id)
+            } else {
+                return self.initCollectionWithQueries(collection, {
+                    'where': where,
+                    'limit': limit,
+                    'id': id
+                }).then((doc) => {
+                    if (_.isEmpty(id) !== false) {
+                        let response = doc.docs[0];
+                        if (_.isEmpty(response) === false) {
+                            const data = response.data();
+                            return resolve(_.merge(data, {node_id: response.id, id: response.id}));
+                        } else {
+                            return resolve({});
+                        }
                     } else {
-                        return resolve({});
+                        const data = doc.data();
+                        return resolve(_.merge(data, {node_id: doc.id, id: doc.id}));
                     }
-                } else {
-                    const data = doc.data();
-                    return resolve(_.merge(data, {node_id: doc.id, id: doc.id}));
-                }
-            }).catch((error) => {
-                return reject("Error getting document:" + error);
-            });
+                }).catch((error) => {
+                    return reject("Error getting document:" + error);
+                });
+            }
+        });
+    }
+
+    __initQueryById(collection, id) {
+        let self = this;
+        return new Promise((resolve, reject) => {
+        return self.initQueryById(collection, id).then((doc) => {
+            if (!doc.exists) {
+                return resolve('No such document!');
+            } else {
+                const data = doc.data();
+                return resolve(_.merge(data, {node_id: doc.id, id: doc.id}));
+            }
+        }).catch((error) => {
+            return reject("Error getting document:" + error);
+        })
         });
     }
 

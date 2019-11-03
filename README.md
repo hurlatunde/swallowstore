@@ -14,6 +14,12 @@ A flexible easy to use Google Cloud Firestore API Wrapper class for Node.JS
 
   `npm install swallowstore`
   
+  
+  ```javascript
+import * as swallowInstance from "swallowstore";
+```
+  
+  
 ## Sample Usage
   ```javascript
   const swallowInstance = require('swallowstore');
