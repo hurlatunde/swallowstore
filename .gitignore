@@ -62,3 +62,12 @@ typings/
 test
 .idea
 
+.idea/vcs.xml
+public/assets/
+src/appRedux/
+src/assets/
+src/components/
+src/constants/
+src/containers/
+src/routes/
+src/util/
