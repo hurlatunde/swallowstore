@@ -32,8 +32,9 @@
     "mocha": "^5.2.0"
   },
   "dependencies": {
-    "firebase": "^5.11.1",
-    "firebase-admin": "^6.5.1",
+    "firebase": "^7.2.3",
+    "firebase-admin": "^8.7.0",
+    "grpc": "^1.24.2",
     "lodash": "^4.17.15"
   }
 }
