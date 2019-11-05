@@ -130,23 +130,30 @@ class FirestoreDataModel {
                 } else {
                     let ids = params;
                     return Promise.all(ids.map(id => {
-                        return self.initQueryById(collection, id)
-                            .then(doc => {
+                        return self.initQueryById(collection, id).then(doc => {
                                 if (doc.exists) {
                                     let data = doc.data()
                                     return resolve(_.merge(data, {node_id: doc.id, id: doc.id}));
                                 } else {
                                     return reject("'No such document!")
                                 }
-                            })
-                            .catch(e => {
+                            }).catch(e => {
                                 return reject("Error getting document:" + e)
                             })
                     }))
                 }
             } else {
                 let id = params;
-                return self.__initQueryById(collection, id)
+                return self.initQueryById(collection, id).then((doc) => {
+                    if (!doc.exists) {
+                        return resolve('No such document!');
+                    } else {
+                        const data = doc.data();
+                        return resolve(_.merge(data, {node_id: doc.id, id: doc.id}));
+                    }
+                }).catch((error) => {
+                    return reject("Error getting document:" + error);
+                })
             }
         });
 
@@ -371,7 +378,16 @@ class FirestoreDataModel {
             let self = this;
 
             if (typeof where !== "undefined" || !where) {
-                return self.__initQueryById(collection, id)
+                return self.initQueryById(collection, id).then((doc) => {
+                    if (!doc.exists) {
+                        return resolve('No such document!');
+                    } else {
+                        const data = doc.data();
+                        return resolve(_.merge(data, {node_id: doc.id, id: doc.id}));
+                    }
+                }).catch((error) => {
+                    return reject("Error getting document:" + error);
+                })
             } else {
                 return self.initCollectionWithQueries(collection, {
                     'where': where,
@@ -394,22 +410,6 @@ class FirestoreDataModel {
                     return reject("Error getting document:" + error);
                 });
             }
-        });
-    }
-
-    __initQueryById(collection, id) {
-        let self = this;
-        return new Promise((resolve, reject) => {
-        return self.initQueryById(collection, id).then((doc) => {
-            if (!doc.exists) {
-                return resolve('No such document!');
-            } else {
-                const data = doc.data();
-                return resolve(_.merge(data, {node_id: doc.id, id: doc.id}));
-            }
-        }).catch((error) => {
-            return reject("Error getting document:" + error);
-        })
         });
     }
 
