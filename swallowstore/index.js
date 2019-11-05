@@ -128,23 +128,28 @@ class FirestoreDataModel {
                 if (JSON.stringify(params) === '{}' || JSON.stringify(params) === '[]') {
                     return reject('Empty ids params');
                 } else {
-                    let ids = params;
-                    return Promise.all(ids.map(id => {
-                        return self.initQueryById(collection, id).then(doc => {
-                                if (doc.exists) {
-                                    let data = doc.data()
-                                    return resolve(_.merge(data, {node_id: doc.id, id: doc.id}));
-                                } else {
-                                    return reject("'No such document!")
-                                }
-                            }).catch(e => {
-                                return reject("Error getting document:" + e)
-                            })
-                    }))
+                    Promise.all(params.map(id => {
+                        return self.initQueryById(collection, id)
+                    })).then(res => {
+                        let count = res.length;
+                        let response = count > 0;
+
+                        let data = [];
+                        res.forEach(function (childSnapshot) {
+                            let key = childSnapshot.id;
+                            let childData = childSnapshot.data();
+                            childData.node_id = key;
+                            childData.id = key;
+                            data.push(childData);
+                        });
+                        return resolve({data: data, response: response, response_count: count});
+
+                    }).catch((error) => {
+                        return reject("Error getting documents:" + error);
+                    });
                 }
             } else {
-                let id = params;
-                return self.initQueryById(collection, id).then((doc) => {
+                return self.initQueryById(collection, params).then((doc) => {
                     if (!doc.exists) {
                         return resolve('No such document!');
                     } else {
@@ -518,7 +523,7 @@ class FirestoreDataModel {
      * @param id
      */
     initQueryById(collection, id) {
-        return this.initCollection(collection).doc(id).get();
+        return this.initCollection(collection).doc(String(id)).get();
     }
 
     /**
